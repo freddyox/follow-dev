@@ -1,0 +1,16 @@
+#include "../include/Leader.hh"
+
+Leader::Leader(float x, float y) {
+  displayx = x;
+  displayy = y;
+
+
+
+}
+
+
+
+void Leader::draw(sf::RenderTarget& target, sf::RenderStates) const {
+
+
+}

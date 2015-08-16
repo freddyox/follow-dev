@@ -1,0 +1,80 @@
+//    ************************************************************
+//    *                     Brownian Motion                      *
+//    *                       August 2015                        *
+//    ************************************************************
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+
+#include <iostream>
+#include "../include/Particles.hh"
+#include "../include/Walls.hh"
+#include "../include/Tracer.hh"
+
+const float gDisplayx = 600;
+const float gDisplayy = 400;
+int main() {
+  //GAME SETUP
+  sf::RenderWindow window(sf::VideoMode(gDisplayx,gDisplayy), "Brownian Motion");
+  window.setFramerateLimit(60);
+  sf::RenderWindow tracerwindow(sf::VideoMode(gDisplayx,gDisplayy), "Brownian Motion - Tracers");
+  tracerwindow.setFramerateLimit(60);
+
+  int clicker=0;
+
+  //////////////////////////////////////////////////////
+  //                   Parameters                     //
+  //////////////////////////////////////////////////////
+  int numberofparticles = 6;
+  float averageThermalTemperature = 300; // kelvin
+
+  // Initializations
+  Particles particles( window.getSize().x, window.getSize().y, numberofparticles , averageThermalTemperature);
+  particles.initialize();
+  sf::Vector2f position;
+
+  Walls walls( window.getSize().x, window.getSize().y );
+  walls.makegrid();
+  
+  Tracer tracer;
+
+  while( window.isOpen() && tracerwindow.isOpen() ) {
+
+    sf::Event event;
+    while( window.pollEvent(event) ) {
+      if( event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) ) {
+	window.close();
+      }
+    }
+    while( tracerwindow.pollEvent(event) ) {
+     if( event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) ) {
+	tracerwindow.close();
+      }
+   }
+    window.clear(sf::Color::White);
+    tracerwindow.clear();
+
+    // UPDATING
+    particles.updateParticles();
+    particles.hardCollisions();
+    position = particles.getSpecialParticle();
+
+    if( clicker % 2 == 0 ) {
+      tracer.trace(position, clicker, particles.getBounceNumber() ); 
+    }
+    
+    // DRAWINGS
+    window.draw(walls);
+    window.draw(particles);
+    
+    tracerwindow.draw(walls);
+    tracerwindow.draw(tracer);
+  
+    window.display();  
+    tracerwindow.display(); 
+    
+    //t += dt;
+    clicker++;
+  }
+  return 0;
+}
