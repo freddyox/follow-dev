@@ -17,7 +17,11 @@ int main() {
   sf::RenderWindow window(sf::VideoMode(gDisplayx,gDisplayy), "Follower");
   window.setFramerateLimit(60);
 
+  // Time
   int clicker=0;
+  sf::Clock clock;
+  float t = 0.0;
+  float dt = 1.0/60.0;
 
   //////////////////////////////////////////////////////
   //                   Parameters                     //
@@ -42,7 +46,10 @@ int main() {
     leader.update();
     leader.gravity();
     leader.spiral(clicker);
-    leader.follow();
+    //leader.follow();
+    sf::Time elapsed = clock.restart();
+    leader.tracersON(clicker);
+    leader.dissolve(elapsed);
     
     // DRAWINGS
     window.draw(leader);
