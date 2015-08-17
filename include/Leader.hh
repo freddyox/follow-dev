@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <vector>
+#include <string>
 
 class Leader : public sf::Drawable, public sf::Transformable {
 
@@ -13,6 +14,8 @@ private:
   float G, centerMass, density;
   sf::Vector2f center;
   int numberofleaders,timer;
+  bool putinFollowers, tracersONorOFF;
+  std::string pattern;
 
   sf::CircleShape circles;
 
@@ -47,8 +50,16 @@ private:
   sf::Time m_lifetime;
   float R_knot;
 
+  struct TracersF{
+    sf::CircleShape tracerF;
+    sf::Time lifetimeF;
+  };
+  sf::CircleShape tracertemplateF;
+  std::vector<TracersF> tracevecF;
+  std::vector<TracersF>::iterator traceitF;
+
 public:
-  Leader(float, float, int);
+  Leader(float, float, int, std::string, bool, bool);
   ~Leader() {};
   void draw(sf::RenderTarget&, sf::RenderStates) const;
   void ParticleAdd(sf::CircleShape, sf::Vector2f, float, float);
@@ -61,6 +72,10 @@ public:
 
   void tracersON(int);
   void TracerAdd(sf::CircleShape, sf::Time);
+  void TracerAddF(sf::CircleShape, sf::Time);
   void dissolve(sf::Time);
+
+  bool getFollowerBool() { return putinFollowers; }
+  bool getTracerBool() { return tracersONorOFF; }
 };
 #endif

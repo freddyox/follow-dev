@@ -7,6 +7,8 @@
 #include <SFML/System.hpp>
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "../include/Leader.hh"
 
@@ -26,10 +28,24 @@ int main() {
   //////////////////////////////////////////////////////
   //                   Parameters                     //
   //////////////////////////////////////////////////////
-  int numberofleaders = 10;
+  int numberofleaders = 8;
+  bool followers = true;
+  bool tracersONorOFF = true;
   
+  // What type of pattern would you like to generate?
+  // Flower/spiral/fibonacci patterns if number = 10 and Patterns[3]
+  std::vector<std::string> Patterns;
+  Patterns.push_back("spiral");               // 0
+  Patterns.push_back("random");               // 1
+  Patterns.push_back("circle");               // 2
+  Patterns.push_back("flower_spiral");        // 3
+  Patterns.push_back("flower");               // 4
+  Patterns.push_back("double circle");        // 5
+  Patterns.push_back("puzzle piece center");  // 6 - need to remove
+  Patterns.push_back("bulls eye");            // 7
+
   // Initializations
-  Leader leader(window.getSize().x, window.getSize().y, numberofleaders);
+  Leader leader(window.getSize().x, window.getSize().y, numberofleaders, Patterns[0], followers, tracersONorOFF);
 
   while( window.isOpen() ) {
 
@@ -46,11 +62,14 @@ int main() {
     leader.update();
     leader.gravity();
     leader.spiral(clicker);
-    //leader.follow();
+    if( leader.getFollowerBool() ) {
+      leader.follow();
+    }
     sf::Time elapsed = clock.restart();
-    leader.tracersON(clicker);
-    leader.dissolve(elapsed);
-    
+    if( leader.getTracerBool() ) {
+      leader.tracersON(clicker);
+      leader.dissolve(elapsed);
+    }    
     // DRAWINGS
     window.draw(leader);
     window.display();  
