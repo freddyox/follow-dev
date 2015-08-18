@@ -271,7 +271,12 @@ void Leader::dissolve(sf::Time elapsed) {
     // This part here is computationally slow.
     if( (*traceit).lifetime <= sf::Time::Zero ){
       int random = rand() % leadervec.size();
-      (*traceit).tracer.setPosition( leadervec[random].leader.getPosition() );
+      if( putinFollowers ) {
+	tracevec.erase(traceit);
+      }
+      else {
+	(*traceit).tracer.setPosition( leadervec[random].leader.getPosition() );
+      }
     }
   }
   if( putinFollowers && tracersONorOFF ) {
@@ -286,9 +291,10 @@ void Leader::dissolve(sf::Time elapsed) {
 
       if( (*traceitF).lifetimeF <= sf::Time::Zero ){
 	int random = rand() % leadervec.size();
-	(*traceitF).tracerF.setPosition( leadervec[random].leader.getPosition() );
- }
- 
+	//(*traceitF).tracerF.setPosition( leadervec[random].leader.getPosition() );
+	(tracevecF).erase(traceitF);
+      }
+      
     }
   }
 }
