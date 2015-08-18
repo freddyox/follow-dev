@@ -14,7 +14,7 @@ private:
   float G, centerMass, density;
   sf::Vector2f center;
   int numberofleaders,timer;
-  bool putinFollowers, tracersONorOFF;
+  bool putinFollowers, tracersONorOFF, slowdown;
   std::string pattern;
 
   sf::CircleShape circles;
@@ -59,7 +59,7 @@ private:
   std::vector<TracersF>::iterator traceitF;
 
 public:
-  Leader(float, float, int, std::string, bool, bool);
+  Leader(float, float, int, std::string, bool, bool, bool);
   ~Leader() {};
   void draw(sf::RenderTarget&, sf::RenderStates) const;
   void ParticleAdd(sf::CircleShape, sf::Vector2f, float, float);

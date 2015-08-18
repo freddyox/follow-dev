@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofollowers, bool tracersYorN) {
+Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofollowers, bool tracersYorN, bool slowmo) {
   // Some constants
   displayx = x;
   displayy = y;
@@ -18,7 +18,11 @@ Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofoll
   pattern = whichPattern;
   putinFollowers = yestofollowers;
   tracersONorOFF = tracersYorN;
-
+  slowdown = slowmo;
+  if( slowdown ) {
+    centerMass = 100;
+  }
+  
   // Initialize leader properties
   circles.setRadius(radius);
   circles.setFillColor(sf::Color::Cyan);
@@ -47,11 +51,12 @@ Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofoll
   
   // This routine handles starting locations, velocities, and angles
   // for a variety of setups.
-  for( int i=0; i<numberofleaders; i++ ){
-    if(    pattern == "spiral"        || pattern == "circle" 
-	|| pattern == "flower"        || pattern == "flower_spiral" 
-	|| pattern == "double circle" || pattern == "puzzle piece center" 
-	|| pattern == "bulls eye" ){
+  if( pattern    == "spiral"        || pattern == "circle" 
+      || pattern == "flower"        || pattern == "flower_spiral" 
+      || pattern == "double circle" || pattern == "puzzle piece center" 
+      || pattern == "bulls eye"     || pattern == "crazy folds" ){
+    for( int i=0; i<numberofleaders; i++ ){
+      
       float tempAngle = 360 / numberofleaders;
     
       sf::Vector2f tempPosition( -R_knot*sin( conv*tempAngle*i ), R_knot*cos( conv*tempAngle*i ) );
@@ -78,12 +83,16 @@ Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofoll
 	vx = sqrt(centerMass / R_knot );
 	vy = sqrt(centerMass / R_knot );
       }
-      
-      else {
+      if (pattern == "crazy folds" ){
+	vx = 10;
+	vy = 0.5;
+      }
+      else{
 	// note: 16 and 16 basically give  a perfect circle
 	vx = 10;
 	vy = 10;
       }
+     
       sf::Vector2f velocity_knot( vel_hat.x*vx, vel_hat.y*vy );
       float m = 10;
       ParticleAdd(circles, velocity_knot, tempAngle, m);
@@ -117,6 +126,47 @@ Leader::Leader(float x, float y, int N, std::string whichPattern, bool yestofoll
       sf::Vector2f velocity_knot( -vx*sin( conv*tempAngle ), vy*cos( conv*tempAngle) );   
       float m = 10;
       ParticleAdd(circles, velocity_knot, tempAngle, m);
+    }
+  }
+  if(    pattern == "boxTL"       || pattern == "boxC" 
+      || pattern == "boxTL folds" || pattern == "boxC folds" ){
+    
+    numberofleaders = 10000;
+    // squareD might need to be tweaked
+    float squareD = center.y - 100;
+    sf::Vector2f topLeft = center - sf::Vector2f(squareD,squareD);
+    int particles_per_row = 0; 
+    if( numberofleaders % 100 == 0) {
+      particles_per_row = sqrt( numberofleaders );
+    }
+    else {
+      std::cerr << "error, check box routine" << std::endl;
+    }
+    float spacing = squareD / particles_per_row;
+    // i = rows
+    // j = columns
+    for( int i=0; i<particles_per_row; i++ ) {
+      for( int j=0; j<particles_per_row; j++ ) {
+	sf::Vector2f temp(0,0);
+		
+	if( pattern == "boxC" || pattern == "boxC folds" ) {
+	  temp = topLeft + sf::Vector2f(i*2*spacing,j*2*spacing);
+	}
+	
+	if( pattern == "boxTL" || pattern == "boxTL folds" ) {
+	  temp = topLeft + sf::Vector2f(i*spacing,j*spacing);
+	}
+	
+	circles.setPosition( temp );
+
+	sf::Vector2f velocity_knot(0,0);
+	if( pattern == "boxTL folds" || pattern == "boxC folds" ) { 
+	  velocity_knot = sf::Vector2f( 3,3 );
+	}
+	
+	float m = 10;
+	ParticleAdd(circles,velocity_knot,0.0,m);
+      }
     }
   }
   if( putinFollowers ) {
@@ -179,7 +229,18 @@ void Leader::gravity() {
     sf::Vector2f force = temp*r_hat;
     
     (*leaderit).velocity.x += (force.x) / ((*leaderit).mass*1000); 
-    (*leaderit).velocity.y += (force.y) / ((*leaderit).mass*1000);    
+    (*leaderit).velocity.y += (force.y) / ((*leaderit).mass*1000);   
+    
+    if(    pattern == "boxTL"       || pattern == "boxC" 
+	|| pattern == "boxTL folds" || pattern == "boxC folds" ){
+      //float R_max = center.y - 100;
+      //float ratio =  r / R_max;
+      float vmag = ((*leaderit).velocity.x * (*leaderit).velocity.x)  + ((*leaderit).velocity.y) * ((*leaderit).velocity.y);  
+      //(*leaderit).leader.setFillColor(sf::Color( static_cast<sf::Uint8>(ratio * 255), (1-ratio)*200, 50 ));
+      float xratio = ((*leaderit).velocity.x * (*leaderit).velocity.x) / vmag;
+      float yratio = ((*leaderit).velocity.y * (*leaderit).velocity.y) / vmag;
+      (*leaderit).leader.setFillColor( sf::Color(20, vmag, 250*xratio ) );
+    }
   }
 }
 void Leader::spiral(int clicker){

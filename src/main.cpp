@@ -28,9 +28,10 @@ int main() {
   //////////////////////////////////////////////////////
   //                   Parameters                     //
   //////////////////////////////////////////////////////
-  int numberofleaders = 2;
-  bool followers = true;
-  bool tracersONorOFF = true;
+  int numberofleaders = 8;
+  bool followers = false;
+  bool tracersONorOFF = false;
+  bool slowdown = false;
   
   // What type of pattern would you like to generate?
 
@@ -38,6 +39,7 @@ int main() {
   // Flower/spiral/fibonacci patterns if number = 10 and Patterns[3]
   // Patterns[6] looks nice when number = 4, 8, 12, 16, 360
   // Patterns[7] looks nice when number = 4, 5, 8, 12,36
+  // Patterns[8] - number = 360 gives awesome simulation but computationally slow
   std::vector<std::string> Patterns;
   Patterns.push_back("spiral");               // 0
   Patterns.push_back("random");               // 1
@@ -47,9 +49,20 @@ int main() {
   Patterns.push_back("double circle");        // 5
   Patterns.push_back("puzzle piece center");  // 6 
   Patterns.push_back("bulls eye");            // 7
+  Patterns.push_back("crazy folds");          // 8
+
+  // Box Patterns under the influence of gravity with different initial conditions
+  // note - numberofleaders is irrelevant here as it gets overridden
+  // note - tracers should be OFF
+ 
+  Patterns.push_back("boxC");                 // 9
+  Patterns.push_back("boxC folds");           // 10
+  Patterns.push_back("boxTL");                // 11
+  Patterns.push_back("boxTL folds");          // 12
+
 
   // Initializations
-  Leader leader(window.getSize().x, window.getSize().y, numberofleaders, Patterns[2], followers, tracersONorOFF);
+  Leader leader(window.getSize().x, window.getSize().y, numberofleaders, Patterns[10], followers, tracersONorOFF, slowdown);
 
   while( window.isOpen() ) {
 
